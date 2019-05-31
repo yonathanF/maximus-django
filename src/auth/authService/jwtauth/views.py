@@ -21,7 +21,7 @@ def decode_token(token):
 
 def encode_token(user_id, expire_time):
     secret = settings.SECRET_KEY
-    payload = {'user_id': user_id}
+    payload = {'user_id': user_id, 'exp': expire_time}
     return jwt.encode(payload, secret, algorithm='HS256').decode()
 
 
