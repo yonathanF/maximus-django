@@ -49,9 +49,6 @@ class AuthGetToken(TestCase):
         payload = decode_token(token)
         self.assertEquals(user_id, payload['user_id'])
 
-    def test_test(self):
-        pass
-
 
 class AuthJWTTestCase(TestCase):
     """
