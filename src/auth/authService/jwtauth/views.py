@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 
 import jwt
 from django.conf import settings
@@ -8,12 +9,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from jwt.exceptions import DecodeError, ExpiredSignature, InvalidTokenError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("Jwtauth")
 
 
 def decode_token(token):
     if len(token) == 0:
-        raise KeyError("Token doesn't exist")
+        raise KeyError("Token doesn't exist.")
     secret = settings.SECRET_KEY
     decoded_payload = jwt.decode(token, secret, algorithms=['HS256'])
     return decoded_payload
@@ -51,3 +52,24 @@ class AuthJWT(View):
                 "Tried to authenticate without a token or incorrect post body."
             )
             return JsonResponse({"Error": "Could not find token."}, status=403)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GetToken(View):
+    def post(self, request):
+        try:
+            logger.info("Starting to generate a new token.")
+            user_id = request.POST.get('user_id', '')
+            if len(user_id) == 0:
+                raise KeyError("Must include a user_id.")
+            user_id = int(user_id)
+            return JsonResponse({
+                "token":
+                encode_token(user_id,
+                             datetime.utcnow() + timedelta(minutes=30))
+            })
+
+        except KeyError:
+            logger.warning("Attempted to get a token without a user_id.")
+            return JsonResponse({"Error": "Could not find a user id"},
+                                status=403)

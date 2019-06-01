@@ -13,6 +13,39 @@ STATUS_CRED_SUCCESS = 200
 logging.disable(logging.CRITICAL)
 
 
+class AuthGetToken(TestCase):
+    """
+    Test cases for getting a new token
+    """
+
+    def setUp(self):
+        self.endpoint = "get_token"
+
+    def test_token_without_user_id_fails_code(self):
+        response = self.client.post(reverse(self.endpoint),
+                                    {'token': 'testtest'})
+        self.assertEquals(response.status_code, STATUS_CRED_ERROR)
+
+    def test_token_without_user_id_fails_msg(self):
+        response = self.client.post(reverse(self.endpoint),
+                                    {'token': 'testtest'})
+        error_msg = json.loads(response.content.decode("UTF-8"))
+        self.assertIn("Error", error_msg.keys())
+
+    def test_token_with_userid_gets_token(self):
+        response = self.client.post(reverse(self.endpoint), {'user_id': '1'})
+        success_msg = json.loads(response.content.decode("UTF-8"))
+        self.assertIn("token", success_msg.keys())
+
+    def test_token_correctly_decodes(self):
+        user_id = 1
+        response = self.client.post(reverse(self.endpoint),
+                                    {'user_id': user_id})
+        token = json.loads(response.content.decode("UTF-8"))['token']
+        payload = decode_token(token)
+        self.assertEquals(user_id, payload['user_id'])
+
+
 class AuthJWTTestCase(TestCase):
     """
     Basic tests for authenticating users with jwt
