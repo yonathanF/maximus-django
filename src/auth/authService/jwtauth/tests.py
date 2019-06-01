@@ -32,6 +32,10 @@ class AuthGetToken(TestCase):
         error_msg = json.loads(response.content.decode("UTF-8"))
         self.assertIn("Error", error_msg.keys())
 
+    def test_token_with_userid_gets_token_code(self):
+        response = self.client.post(reverse(self.endpoint), {'user_id': '1'})
+        self.assertEquals(response.status_code, STATUS_CRED_SUCCESS)
+
     def test_token_with_userid_gets_token(self):
         response = self.client.post(reverse(self.endpoint), {'user_id': '1'})
         success_msg = json.loads(response.content.decode("UTF-8"))

@@ -63,11 +63,13 @@ class GetToken(View):
             if len(user_id) == 0:
                 raise KeyError("Must include a user_id.")
             user_id = int(user_id)
-            return JsonResponse({
-                "token":
-                encode_token(user_id,
-                             datetime.utcnow() + timedelta(minutes=30))
-            })
+            return JsonResponse(
+                {
+                    "token":
+                    encode_token(user_id,
+                                 datetime.utcnow() + timedelta(minutes=30))
+                },
+                status=200)
 
         except KeyError:
             logger.warning("Attempted to get a token without a user_id.")
